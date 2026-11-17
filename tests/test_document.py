@@ -66,6 +66,25 @@ def test_translate_index_to_position(document):
     assert pos == (0, 0)
 
 
+def test_translate_row_col_to_index():
+    doc = Document("one\ntwo\nthree")
+    assert doc.translate_row_col_to_index(0, 0) == 0
+    assert doc.translate_row_col_to_index(1, 0) == 4
+    assert doc.translate_row_col_to_index(2, 0) == 8
+
+    # Negative row should clamp to row 0
+    for r in (-1, -2, -3, -4):
+        assert doc.translate_row_col_to_index(r, 0) == 0
+    assert doc.translate_row_col_to_index(-1, 2) == 2
+
+    # Negative col should clamp to col 0
+    assert doc.translate_row_col_to_index(1, -2) == 4
+
+    # Large row beyond document clamps to last line
+    assert doc.translate_row_col_to_index(10, 0) == 8
+    assert doc.translate_row_col_to_index(10, 100) == 13
+
+
 def test_is_cursor_at_the_end(document):
     assert Document("hello", 5).is_cursor_at_the_end
     assert not Document("hello", 4).is_cursor_at_the_end
