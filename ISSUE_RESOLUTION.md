@@ -34,6 +34,11 @@ As a consequence:
 
 ---
 
+## Solution Approach
+1. **Align Boundary Clamping Symmetry:** `Document.translate_row_col_to_index(row, col)` clamped oversized row indices to the last line, but when given a negative `row` (e.g., `-1`), Python's negative list indexing wrapped around to the end of the document instead of clamping to row `0`.
+2. **Explicit Lower-Bound Clamping:** Added `row = max(0, row)` before indexing into `self.lines` in `src/prompt_toolkit/document.py`, ensuring symmetric clamping at both document boundaries (`0` and `line_count - 1`).
+3. **TDD & Regression Safety:** Added `test_translate_row_col_to_index` cases for negative rows in `tests/test_document.py` verifying clamping to index `0`.
+
 ## Solution
 Clamp `row` to non-negative values upfront via `row = max(0, row)` before indexing into `self._line_start_indexes` and `self.lines`:
 ```python
